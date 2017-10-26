@@ -111,7 +111,21 @@ const form = new Form({
   }, {
     name: 'f4',
     onChange (v) {
-      fireService().then(/* update this.form.cvtStore.XXX */)
+      fireService()
+        .then(/* update this.form.cvtStore.XXX */)
+        .then(/* trigger some outside function */)
+    }
+  }, {
+    name: 'province',
+    options: PROVINCES,
+    onChange () {
+
+    }
+  }, {
+    name: 'city',
+    options () {
+      const province = this.province.value
+      return CITIES.filter(c => c.province === province)
     }
   }]
 })
@@ -121,11 +135,30 @@ form.value // returns all available fields value as an object
 
 form.on('f1change', () => {})
 form.on('f2blur', () => {})
+
 ```
 
-## access outside variables
+## update at runtime
 
-## access outside functions
+```js
+const form = new Form()
+form.update({})
+```
+
+## access outside variables / function
+
+It's hard to access outside variables or function in the separate file in which to define the form schema
+
+```js
+{
+  componentProps: {
+    onChange () {
+
+    }
+  }
+}
+
+```
 
 ## FLEXIBLE enough to extend
 
@@ -146,6 +179,21 @@ Field.Schema.defineAttribute('access', {
   runtime: false,
   config: {}
 })
+```
+
+## use in server for form request validation
+
+For form submit, you need a same validation rules at two places, web page and web server
+
+```js
+router.post('/api/xxx', function (req, next) {
+  // validate by schema parsed form
+  // it can return all the errors at one time
+  // or, return the first error at one time
+  // by options
+  const result = form.validate(req.body, options)
+})
+
 ```
 
 
